@@ -47,9 +47,6 @@ void jacobi_iteration(double* u_k, int n, int N, int mpirank, int mpisize, int m
     MPI_Status stats[4];
 
     for (iter=0; iter<max_iter; iter++) {
-        // Requires a barrier synchronization
-        MPI_Barrier(MPI_COMM_WORLD);
-        
         // exhange boundary values
         first = u_k[1];
         last = u_k[n-2];
@@ -64,9 +61,6 @@ void jacobi_iteration(double* u_k, int n, int N, int mpirank, int mpisize, int m
             last = 0;
         }
         
-        // Requires a barrier synchronization
-        MPI_Barrier(MPI_COMM_WORLD);
-        
         MPI_Irecv(u_k, 1, MPI_DOUBLE, prev, tag1, MPI_COMM_WORLD, &reqs[0]);
         MPI_Irecv(u_k+n-1, 1, MPI_DOUBLE, next, tag2, MPI_COMM_WORLD, &reqs[1]);
         
@@ -74,9 +68,6 @@ void jacobi_iteration(double* u_k, int n, int N, int mpirank, int mpisize, int m
         MPI_Isend(&last, 1, MPI_DOUBLE, next, tag1, MPI_COMM_WORLD, &reqs[3]);
         
         MPI_Waitall(4, reqs, stats);
-        
-        // Requires a barrier synchronization
-        MPI_Barrier(MPI_COMM_WORLD);
         
         // perform 1 step of jacobi
         jacobi_kernel(u_k, n, N);
@@ -107,7 +98,7 @@ int main(int argc, char** argv){
     N = atol(argv[1]);
     max_iter = atol(argv[2]);
     
-    if ((N%mpisize != 0) || (N>mpisize)) {
+    if ((N%mpisize != 0) || (N<mpisize)) {
         fprintf(stderr, "N <number of grid points> must be a multiple of p <number of processors> \n");
     }
     
@@ -120,7 +111,7 @@ int main(int argc, char** argv){
     }
     
     jacobi_iteration(u_k, n, N, mpirank, mpisize, max_iter);
-//    print_solution(u_k, n, N, mpirank, mpisize);
+    print_solution(u_k, n, N, mpirank, mpisize);
     
     MPI_Finalize();
     

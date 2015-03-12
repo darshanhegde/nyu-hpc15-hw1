@@ -1,0 +1,14 @@
+1. I am not printing out the final message for each MPI process. Instead computing the formula
+   for the sum and checking it with a assert statement at the end.
+   
+   I'm running my code on Mac Book Pro (Retina) with 8 GB 1600 MHz DDR3 and 2.5 GHz Intel Core i5
+   When I use 2 processes for running (data-ring) executable, I get a bandwidth of 13.45 GB / sec. 
+   Which is just the bandwidth of memory access. If I use 4 processes I get a bandwidth of 9.06 GB / sec.
+   The reduction is possibly due to contention of processor cores for a limited memory bus size. 
+   
+2. Gauss-Seidel smoother is significantly more harder to implement in parallel because present 
+   update requires both current and previous values from neighbors. So we can't simply do the 
+   update-communicate cycle that we can do with Jacobi iterations. The communication pattern becomes 
+   more complex and if we have to use the same strategy as Jacobi iterations, it would make a linear
+   chain. So, parallel version of Gauss-Seidel is harder to implement compared to Jacobi. 
+     

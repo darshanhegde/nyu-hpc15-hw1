@@ -40,6 +40,10 @@ main(int argc, char *argv[])  {
         }
     }
     
+    if (mpirank==0) {
+        MPI_Recv(&message,  1, MPI_INT, prev, tag, MPI_COMM_WORLD, &status);
+    }
+    
     // check for correctness of implementation
     long ans = ((mpisize*(mpisize-1))/2)*(N-1) + (mpirank*(mpirank+1))/2;
     assert(message==ans);
